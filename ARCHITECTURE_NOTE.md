@@ -4,6 +4,90 @@
 
 The **ParcelPilot Internal Support Agent** is an enterprise operations AI system designed for authorized ParcelPilot support staff and operations managers. It investigates customer incidents, answers operational and contractual questions, deterministically calculates SLAs, fees, and credits, flags high-urgency tickets, and executes approved support actions through a strict two-phase confirmation protocol.
 
+```mermaid
+flowchart TB
+    U["ParcelPilot Operations User<br/>Support Agent / Manager"]
+
+    UI["React Frontend<br/>Chat • Operations Dashboard • Evaluation Suite"]
+
+    API["FastAPI Backend<br/>REST API • Server-Side Sessions"]
+
+    RESOLVE["Deterministic Account Resolution<br/>+ Session / Role Context"]
+
+    AGENT["OpenAI Agent Loop<br/>GPT-5-mini + Native Function Calling"]
+
+    DATA["Structured Data Tools"]
+    DOCS["Document Search<br/>Metadata-Driven Precedence"]
+    RULES["Deterministic Rules Engine<br/>SLA • Cancellation • Credits"]
+
+    DB[("SQLite Database<br/>Accounts • Orders • Tickets<br/>Issued Credits • Sessions")]
+
+    SOURCES["Authoritative Source Pack<br/>Signed Agreements • Current Policy/SOP<br/>Operations Guide"]
+
+    GUARDS["Authorization & Ownership Guards<br/>Role Validation • Account Isolation"]
+
+    PREP["prepare_action<br/>Validate + Persist Pending Action"]
+
+    CONFIRM{"Explicit User Confirmation"}
+
+    EXEC["execute_action<br/>Re-validate + Mutate"]
+
+    RESPONSE["Grounded Response<br/>Decision + Evidence + Citations"]
+
+    PROACTIVE["Proactive Issue Detection<br/>P1 • SLA Risk • Known Issues • Patterns"]
+
+    DASH["Operations Dashboard"]
+
+    U --> UI
+    UI --> API
+    API --> RESOLVE
+    RESOLVE --> AGENT
+
+    AGENT --> DATA
+    AGENT --> DOCS
+    AGENT --> RULES
+
+    DATA --> DB
+    RULES --> DB
+    DOCS --> SOURCES
+
+    DATA --> GUARDS
+    RULES --> GUARDS
+    GUARDS --> PREP
+
+    PREP --> CONFIRM
+    CONFIRM -->|Confirm| EXEC
+    CONFIRM -->|Cancel| RESPONSE
+    EXEC --> DB
+    EXEC --> RESPONSE
+
+    AGENT --> RESPONSE
+    RESPONSE --> UI
+
+    DB --> PROACTIVE
+    SOURCES --> PROACTIVE
+    PROACTIVE --> DASH
+    DASH --> UI
+
+    classDef user fill:#eef2ff,stroke:#6366f1,stroke-width:2px
+    classDef frontend fill:#ecfeff,stroke:#0891b2,stroke-width:2px
+    classDef backend fill:#f0fdf4,stroke:#16a34a,stroke-width:2px
+    classDef agent fill:#fefce8,stroke:#ca8a04,stroke-width:2px
+    classDef data fill:#f8fafc,stroke:#475569,stroke-width:2px
+    classDef safety fill:#fff7ed,stroke:#ea580c,stroke-width:2px
+    classDef action fill:#fdf2f8,stroke:#db2777,stroke-width:2px
+    classDef output fill:#f0fdfa,stroke:#0f766e,stroke-width:2px
+
+    class U user
+    class UI frontend
+    class API,RESOLVE backend
+    class AGENT agent
+    class DATA,DOCS,RULES,DB,SOURCES data
+    class GUARDS safety
+    class PREP,CONFIRM,EXEC action
+    class RESPONSE,PROACTIVE,DASH output
+    ```
+
 ---
 
 ## 2. Core Architectural Principles & Decisions
