@@ -2,8 +2,10 @@
 
 > Grounded, locked-design internal AI support assistant and proactive issue detection platform for authorized ParcelPilot operations staff. Powered by OpenAI function-calling architecture for the CalQuity Technical Assessment.
 
-![ParcelPilot Suite](https://img.shields.io/badge/Decision%20Accuracy-100%25%20(21%2F21%20 Production)-22c55e?style=for-the-badge)
-![Authoritative Citations](https://img.shields.io/badge/Authoritative%20Citations-100%25%20(21%2F21 Production)-06b6d4?style=for-the-badge)
+![ParcelPilot Suite](https://img.shields.io/badge/Decision%20Accuracy-100%25%20%2821%2F21%20Production%29-22c55e?style=for-the-badge)
+
+![Authoritative Citations](https://img.shields.io/badge/Authoritative%20Citations-100%25%20%2821%2F21%20Production%29-06b6d4?style=for-the-badge)
+
 ![FastAPI + React](https://img.shields.io/badge/Stack-FastAPI%20%7C%20React%20%7C%20OpenAI-6366f1?style=for-the-badge)
 
 **Hosted Application:** https://web-production-e9158.up.railway.app/
