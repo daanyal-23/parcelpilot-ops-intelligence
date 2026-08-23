@@ -93,23 +93,23 @@ The proactive engine (`backend/proactive.py`) provides automated operational int
 The codebase includes an automated 21-test Golden Evaluation Suite (`backend/eval_suite.py`):
 
 - **Benchmark Scope**: 21 locked scenarios (E01–E21) covering contract overrides, calculation mandates, return-to-origin rules, authorization checks, known issues, and account resolution guards.
-- **Local Verified Performance**:
-  - **Decision Accuracy**: **100.0% (21 / 21 passed)**
-  - **Authoritative Citation Accuracy**: **100.0% (21 / 21 verified)**
+- **Production Verified Performance**:
+  - **Decision Accuracy: 100.0% (21/21 passed in production)**
+  - **Authoritative Citation Accuracy: 100.0% (21/21 verified in production)**
 
 ---
 
 ## 7. Deployment Configuration
 
-The repository is configured for containerized deployment on Railway via:
+The repository is configured for deployment on Railway via:
 - `Procfile`: Web process entrypoint running Uvicorn.
 - `railway.json`: Nixpacks build definition.
 - `requirements.txt`: Python runtime dependencies.
 - FastAPI static mount: Hosts compiled React frontend assets (`frontend/dist`) alongside the REST API.
 
-*(Cloud deployment verification is slated for the subsequent deployment phase.)*
+*Production Deployment: The application is deployed on Railway and the deployed instance has been verified using the full E01–E21 Golden Evaluation Suite.*
 
 ---
 
 ## 8. AI Coding Tools Attribution
-Developed with Google Antigravity IDE pairing agentically to construct data schemas, deterministic calculation engines, OpenAI function-calling agent loop, evaluation harness, and modern React UI.
+Google Antigravity and Claude/Claude Code were used during development for code exploration, implementation assistance, debugging, refactoring, documentation, evaluation analysis, and deployment troubleshooting. Application behavior, architectural decisions, and evaluation results were manually reviewed and validated.

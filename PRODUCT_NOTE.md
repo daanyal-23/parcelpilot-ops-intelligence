@@ -18,7 +18,7 @@ We implemented **Proactive Issue Detection** as a dedicated internal operational
 
 | Feature / Area | Decision | Rationale |
 |---|---|---|
-| **Real SSO / OAuth** | Cut (Server-side session auth with role switcher) | Focus was 100% on grounded policy accuracy, deterministic calculations, and role-based action authorization. |
+| **Real SSO / OAuth** | Cut (Server-side session authentication with controlled role selection) | Focus was 100% on grounded policy accuracy, deterministic calculations, and role-based action authorization. |
 | **Vector DB / Semantic Embeddings** | Cut (Structured metadata indexing used) | Bounded, legally authoritative policy pack (6 PDFs). Metadata tagging prevents hallucinated cross-contract bleeding and guarantees 100% citation accuracy. |
 | **Streaming Responses (SSE/WS)** | Cut (Single synchronous agent turns) | Structured JSON responses enable transparent tool badges, complete evidence arrays, and pending action confirmation cards. |
 | **Automatic Action Execution for P1s** | Excluded intentionally | High incident severity increases escalation urgency, but safety mandates two-phase human confirmation for every state mutation. |
@@ -38,6 +38,6 @@ We implemented **Proactive Issue Detection** as a dedicated internal operational
 ## 4. Success Metrics: Decision & Citation Accuracy
 
 - **Metric Definition**: The percentage of test cases in the golden evaluation suite (E01–E21) where the agent reaches the correct operational decision and deterministic calculation **while citing the exact authoritative document reference**.
-- **Local Verified Performance**:
-  - **Decision Accuracy**: **100.0% (21 / 21 passed)**
-  - **Authoritative Citation Accuracy**: **100.0% (21 / 21 verified)**
+- **Production Verified Performance**:
+  - **Decision Accuracy: 100.0% (21/21 passed in production)**
+  - **Authoritative Citation Accuracy: 100.0% (21/21 verified in production)**

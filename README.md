@@ -2,10 +2,11 @@
 
 > Grounded, locked-design internal AI support assistant and proactive issue detection platform for authorized ParcelPilot operations staff. Powered by OpenAI function-calling architecture for the CalQuity Technical Assessment.
 
-![ParcelPilot Suite](https://img.shields.io/badge/Decision%20Accuracy-100%25%20(21%2F21%20Local)-22c55e?style=for-the-badge)
-![Authoritative Citations](https://img.shields.io/badge/Authoritative%20Citations-100%25%20(21%2F21)-06b6d4?style=for-the-badge)
+![ParcelPilot Suite](https://img.shields.io/badge/Decision%20Accuracy-100%25%20(21%2F21%20 Production)-22c55e?style=for-the-badge)
+![Authoritative Citations](https://img.shields.io/badge/Authoritative%20Citations-100%25%20(21%2F21 Production)-06b6d4?style=for-the-badge)
 ![FastAPI + React](https://img.shields.io/badge/Stack-FastAPI%20%7C%20React%20%7C%20OpenAI-6366f1?style=for-the-badge)
 
+**Hosted Application:** https://web-production-e9158.up.railway.app/
 ---
 
 ## 🌟 Key Features
@@ -25,7 +26,7 @@
 
 3. **Golden Evaluation Suite (E01–E21)**:
    - Built-in interactive test runner validating all 21 locked benchmark cases using the live agent loop.
-   - **Local Verified Performance**: **100.0% Decision Accuracy (21 / 21)** and **100.0% Authoritative Citation Verification (21 / 21)**.
+   - **Production Verified Performance**: **100.0% Decision Accuracy (21/21 passed in production)** and **100.0% Authoritative Citation Accuracy(21/21 verified in production)**.
 
 4. **Data & Policy Explorer**:
    - Live browser for SQLite `accounts`, `orders`, `tickets`, and `issued_credits` tables.
@@ -108,13 +109,13 @@ All 21 test cases evaluate the live agent loop and verify decision outcomes and 
 
 ## ☁️ Deployment Configuration
 
-The repository includes cloud deployment configurations for hosting on Railway:
+The application is deployed on Railway:
 - `Procfile`: Web process execution command (`uvicorn backend.main:app --host 0.0.0.0 --port $PORT`).
 - `railway.json`: Nixpacks deployment build configuration.
 - `requirements.txt`: Python package dependencies.
 - FastAPI static mount: Serves pre-built React frontend assets from `frontend/dist`.
 
-*(Note: Railway deployment configuration is prepared in the repository; cloud deployment verification will occur in the subsequent operational phase.)*
+*(Note: The application is deployed on Railway and has been verified against the full E01–E21 Golden Evaluation Suite in production.)*
 
 ---
 
@@ -149,4 +150,5 @@ CalQuity/
 ---
 
 ## 🛠️ AI Tools Used
-Developed with Google Antigravity IDE pairing agentically to construct data schemas, deterministic calculation engines, evaluation harnesses, and modern UI.
+
+Google Antigravity and Claude/Claude Code were used during development for code exploration, implementation assistance, debugging, refactoring, documentation, evaluation analysis, and deployment troubleshooting. Application behavior, architectural decisions, and evaluation results were manually reviewed and validated.
