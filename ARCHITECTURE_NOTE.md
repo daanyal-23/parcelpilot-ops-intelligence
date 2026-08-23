@@ -86,7 +86,7 @@ flowchart TB
     class GUARDS safety
     class PREP,CONFIRM,EXEC action
     class RESPONSE,PROACTIVE,DASH output
-    ```
+```
 
 ---
 
