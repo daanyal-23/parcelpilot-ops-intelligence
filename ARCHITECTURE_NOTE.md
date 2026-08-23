@@ -11,7 +11,7 @@ The **ParcelPilot Internal Support Agent** is an enterprise operations AI system
 ### Principle 1: The LLM Does Not Own Business Truth
 - **Decision**: The LLM functions strictly as an orchestrator and explainer. It never calculates elapsed time, assesses SLA breach status, determines cancellation fee amounts, or computes credit eligibility in memory.
 - **Implementation**: Every calculation is executed in Python (`backend/rules_engine.py`) using deterministic code and verified against source document line items.
-- **Provider & Model**: Powered by **OpenAI (`gpt-5-mini` / `gpt-4o-mini`)** using the official `openai` Python SDK. The agent loop utilizes native OpenAI function calling with tool schemas (`tools` parameter with `type: "function"`).
+- **Provider & Model**: Powered by **OpenAI (`gpt-5-mini`)** (with `gpt-4o-mini` fallback compatibility) using the official `openai` Python SDK. The agent loop utilizes native OpenAI function calling with strict JSON schemas (`tools` parameter with `type: "function"`).
 
 ### Principle 2: Metadata-Driven Precedence Over Similarity
 - **Decision**: Document retrieval is structured via explicit metadata tags rather than unconstrained semantic vector closeness.
@@ -41,27 +41,75 @@ The **ParcelPilot Internal Support Agent** is an enterprise operations AI system
 
 ---
 
-## 3. Disclosed Limitations & Trade-Offs
+## 3. Account-Resolution Reliability & Cross-Account Isolation Hardening
+
+During multi-round manual smoke testing and empirical raw-trace evaluation, account resolution and cross-account isolation were systematically analyzed and hardened:
+
+1. **Vulnerability Discovery & Root Cause**:
+   - Initial implementations relied on model prompt compliance to infer customer account IDs from company names (e.g. "Axis Labs", "LumenWorks").
+   - Repeated trace analysis revealed two failure modes:
+     - The model could emit a conflicting `account_id` argument (e.g., supplying `ACCT-002` for Axis Labs queries).
+     - When ambiguous or unmentioned entities were queried, the model occasionally hallucinated IDs from parametric memory (e.g., selecting `ORD-1001` when asked about LumenWorks).
+2. **Deterministic Pre-Resolution Layer**:
+   - Account resolution was shifted entirely out of model discretion into a deterministic pre-resolution step (`resolve_account_from_message` in `backend/agent.py`).
+   - Before the LLM turn begins, the raw user query is matched against known account aliases using word-boundary regular expressions and verified directly against SQLite.
+   - The verified account (`resolved_account_id`) is injected into the server-side turn context as trusted system metadata.
+3. **Structural Server-Side Enforcement**:
+   - **Tool-Layer Binding**: `search_documents` automatically overrides model-supplied `account_id` arguments with `resolved_account_id`.
+   - **Explicit Cross-Account Mismatch Protection (`ACCOUNT_MISMATCH`)**: When an explicit order ID is supplied alongside a customer context (e.g., "LumenWorks wants to cancel ORD-1001"), `lookup_data` checks `order.account_id == resolved_account_id`. If a mismatch is detected (e.g., `ORD-1001` belongs to `ACCT-001`), `lookup_data` returns a structured `ACCOUNT_MISMATCH` error. The orchestration loop immediately halts, suppressing further document searches or calculations, and instructs the user to provide the correct order ID.
+   - **Action & Calculation Ownership Guard (`INVALID_ACCOUNT_OWNERSHIP`)**: `calculate` and `prepare_action` validate target records against `resolved_account_id` in SQLite, preventing any cross-customer state mutation or computation.
+
+---
+
+## 4. Proactive Issue Detection Architecture
+
+The proactive engine (`backend/proactive.py`) provides automated operational intelligence:
+
+1. **Deterministic 24x7 SLA Monitoring**: Evaluates active incidents against the dataset reference time (`2026-08-16T11:00:00+05:30`). Outages (e.g. TKT-501) and security incidents (e.g. TKT-505) are classified as P1 with contract-specific response targets (15m 24x7 for Northstar, 30m 24x7 for Axis Labs).
+2. **Grounded Handling of Working-Hour Schedules**:
+   - Source policy documents do not specify working hours, timezones, or weekend/holiday calendars for non-24x7 SLAs (e.g. "4 business hours", "2 business days").
+   - To avoid hallucinating an ungrounded 9–5 calendar, the engine reports raw elapsed wall-clock minutes and displays SLA status for open business-hour tickets as **`Calendar Undefined`**.
+3. **Historical Ticket Isolation**: Historical closed tickets (e.g. TKT-450, TKT-451) are explicitly classified as **`Historical / Closed`** rather than evaluated as active open incidents.
+4. **Known Issue Correlation**: Matches incoming ticket descriptions against known bugs (KI-208, KI-211) and suppresses false matches against resolved issues (KI-176).
+
+---
+
+## 5. Disclosed Limitations & Trade-Offs
 
 1. **Northstar Aggregate Credit Cap (₹5,000/month)**:
-   - *Limitation*: The supplied dataset lacks a historical ledger of previously issued credits for ACCT-001.
-   - *Handling*: The system evaluates individual credit eligibility under SOP mechanics and explicitly discloses the monthly cap limitation in the calculation output.
+   - *Limitation*: The supplied dataset lacks a historical ledger of previously issued credits for ACCT-001 across the billing period.
+   - *Handling*: The system deterministically computes individual credit eligibility under SOP mechanics and explicitly discloses the monthly aggregate limit in the calculation explanation.
 2. **Undefined Business-Hour Calendar**:
-   - *Limitation*: None of the source documents define a holiday or business-hour calendar (e.g. 9-5 vs weekend exclusions).
-   - *Handling*: For business-hour denominated SLAs (e.g. P3 8 business hours), the system reports raw wall-clock elapsed time alongside the target string rather than fabricating an arbitrary calendar.
-3. **No Vector Embeddings / External Vector DB**:
-   - *Trade-off*: Deterministic JSON metadata filtering with topic/account/scope tags was chosen over vector embeddings.
-   - *Rationale*: For small, legally precise data packs (6 PDFs), metadata tagging eliminates embedding hallucination, guarantees 100% citation accuracy, and remains explainable.
+   - *Limitation*: Source PDFs specify business-hour targets (e.g., "8 business hours", "2 business days") without defining operational calendar hours, shift schedules, or holiday calendars.
+   - *Handling*: The engine calculates raw elapsed time and clearly flags business-hour targets as `Calendar Undefined` to avoid fabricating unverified calendar rules.
+3. **Deterministic Metadata Tagging vs. Vector Embeddings**:
+   - *Trade-off*: Structured JSON metadata tagging was selected over vector semantic search.
+   - *Rationale*: Across a bounded, legally authoritative document set (6 PDFs), metadata tagging eliminates embedding hallucination, guarantees exact section citations, and ensures deterministic compliance.
 
 ---
 
-## 4. Evaluation & Success Metrics
+## 6. Evaluation & Verified Metrics
 
-- **Evaluation Suite**: Built directly into the codebase (`backend/eval_suite.py` and UI tab) covering all 17 locked golden scenarios (E01–E17).
-- **Reported Metric: Decision Accuracy**: **100.0% (17 / 17 passed)**
-- **Reported Metric: Authoritative Citation Accuracy**: **100.0% (17 / 17 verified)**
+The codebase includes an automated 21-test Golden Evaluation Suite (`backend/eval_suite.py`):
+
+- **Benchmark Scope**: 21 locked scenarios (E01–E21) covering contract overrides, calculation mandates, return-to-origin rules, authorization checks, known issues, and account resolution guards.
+- **Local Verified Performance**:
+  - **Decision Accuracy**: **100.0% (21 / 21 passed)**
+  - **Authoritative Citation Accuracy**: **100.0% (21 / 21 verified)**
 
 ---
 
-## 5. AI Coding Tools Attribution
-- Developed with Google Antigravity IDE pairing agentically to construct data schemas, deterministic calculation engines, OpenAI function-calling agent loop, evaluation harness, and modern React UI.
+## 7. Deployment Configuration
+
+The repository is configured for containerized deployment on Railway via:
+- `Procfile`: Web process entrypoint running Uvicorn.
+- `railway.json`: Nixpacks build definition.
+- `requirements.txt`: Python runtime dependencies.
+- FastAPI static mount: Hosts compiled React frontend assets (`frontend/dist`) alongside the REST API.
+
+*(Cloud deployment verification is slated for the subsequent deployment phase.)*
+
+---
+
+## 8. AI Coding Tools Attribution
+Developed with Google Antigravity IDE pairing agentically to construct data schemas, deterministic calculation engines, OpenAI function-calling agent loop, evaluation harness, and modern React UI.
