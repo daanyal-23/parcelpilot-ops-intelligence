@@ -1,7 +1,7 @@
 """
 Golden Evaluation Suite (E01–E17).
 Evaluates decision accuracy, tool execution contracts, and authoritative source citation
-across all 17 benchmark cases using structured tool-trace and output validation.
+across all 21 benchmark cases using structured tool-trace and output validation.
 """
 
 import sys
