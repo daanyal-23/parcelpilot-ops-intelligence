@@ -57,7 +57,7 @@
 
 1. **Clone the repository**:
    ```bash
-   git clone https://github.com/your-username/CalQuity.git
+   git clone https://github.com/daanyal-23/CalQuity.git
    cd CalQuity
    ```
 
