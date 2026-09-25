@@ -256,5 +256,37 @@ def seed_db():
     conn.close()
     print(f"Database seeded successfully at {DB_PATH}")
 
+def ensure_db_initialized():
+    """
+    Ensures that the SQLite database exists and is properly seeded with initial data.
+    If the database is missing, empty, or uninitialized, it creates tables and seeds them from Excel.
+    If the database is already initialized and populated, it leaves existing data intact.
+    """
+    db_needs_seed = False
+
+    if not os.path.exists(DB_PATH) or os.path.getsize(DB_PATH) == 0:
+        db_needs_seed = True
+    else:
+        conn = get_db_connection()
+        try:
+            cursor = conn.cursor()
+            cursor.execute("SELECT name FROM sqlite_master WHERE type='table'")
+            tables = {row[0] for row in cursor.fetchall()}
+            required_tables = {"accounts", "orders", "tickets", "actions", "issued_credits", "user_sessions"}
+            if not required_tables.issubset(tables):
+                db_needs_seed = True
+            else:
+                cursor.execute("SELECT COUNT(*) FROM accounts")
+                row = cursor.fetchone()
+                if not row or row[0] == 0:
+                    db_needs_seed = True
+        except sqlite3.Error:
+            db_needs_seed = True
+        finally:
+            conn.close()
+
+    if db_needs_seed:
+        seed_db()
+
 if __name__ == "__main__":
-    seed_db()
+    ensure_db_initialized()

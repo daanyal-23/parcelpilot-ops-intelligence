@@ -24,6 +24,7 @@ from backend.db import (
     DATASET_SNAPSHOT_TIME,
     init_db,
     seed_db,
+    ensure_db_initialized,
     create_session,
     get_session
 )
@@ -87,9 +88,7 @@ def authenticate_session(
 
 @app.on_event("startup")
 def startup_event():
-    db_file = os.path.join(os.path.dirname(__file__), "parcelpilot.db")
-    if not os.path.exists(db_file):
-        seed_db()
+    ensure_db_initialized()
 
 @app.get("/health")
 def health_check():

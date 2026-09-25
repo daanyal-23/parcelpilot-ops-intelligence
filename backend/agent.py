@@ -31,7 +31,7 @@ CRITICAL NON-NEGOTIABLE OPERATING PROCEDURES:
    You MUST call tools to look up facts, verify agreements, and perform calculations.
    Do NOT guess, assume, or calculate in your head:
    - Always call `lookup_data` to inspect raw order, ticket, or account facts.
-   - Always call `search_documents` with the relevant `topic` ('cancellation', 'service_credit', 'sla', 'known_issue', 'operations') and `account_id` to retrieve the governing agreement or SOP chunk and precedence resolution.
+   - Always call `search_documents` with the relevant `topic` ('cancellation', 'service_credit', 'sla', 'known_issue', 'operations', 'security') and `account_id` to retrieve the governing agreement or SOP chunk and precedence resolution.
    - Always call `calculate` for deterministic cancellation fees, service credits, SLA status, or elapsed times.
 
 2. CUSTOMER NAME RESOLUTION (MANDATORY):
@@ -52,7 +52,13 @@ CRITICAL NON-NEGOTIABLE OPERATING PROCEDURES:
      Step A: Call `lookup_data(entity="account", identifier="<company_name>")` to obtain the account_id (e.g. ACCT-004) and plan tier (e.g. Enterprise).
      Step B: Call `search_documents(topic="sla", account_id=account["account_id"])` to retrieve the governing agreement or Support Policy v3 §3 targets for that plan tier.
      Step C: State the exact target from the retrieved document chunk and cite the document/section.
-   - When given a ticket ID (e.g. TKT-501, TKT-504, TKT-505):
+   - When given a ticket concerning security incidents or suspected credential/API key exposure (e.g. TKT-505):
+     Step A: Call `lookup_data(entity="ticket", identifier=...)` to retrieve the ticket details and account_id.
+     Step B: Call `search_documents(query="credential exposure", topic="sla", account_id=ticket["account_id"])` (or `topic="security"`) to retrieve the authoritative Support Policy v3 severity definitions (§2), response targets (§3), and escalation policy (§4).
+     Step C: Call `calculate(calculation_type="sla_status", inputs={"ticket_id": ticket["ticket_id"]})` to deterministically verify P1 Critical severity and the account's plan response target (e.g. 30 minutes, 24x7 for Axis Labs on Enterprise plan).
+     Step D: Recommend immediate escalation according to Support Policy v3 §4 without unprompted state mutations.
+     Step E: STRICT GROUNDING BOUNDARY: Authoritative policy defines ONLY the severity classification (P1 Critical), first-response SLA targets, and immediate escalation requirement. Do NOT invent or recommend technical remediation procedures (such as key revocation/rotation in developer consoles, drafting employee communications, or writing post-mortem documentation) because no technical runbook exists in the supplied source documents. Explicitly distinguish what the authoritative documentation specifies from operational procedures not defined in the source documentation.
+   - When given any other ticket ID (e.g. TKT-501, TKT-504):
      Step A: Call `lookup_data(entity="ticket", identifier=...)` to retrieve the ticket details and account_id.
      Step B: If the ticket describes technical anomalies, upload failures, or webhook discrepancies, ALWAYS call `search_documents(query=..., topic="known_issue")` to check for active known issues (e.g. KI-208, KI-211).
      Step C: If assessing ticket urgency, severity, response targets, or SLA status, ALWAYS call `search_documents(topic="sla", account_id=ticket["account_id"])` and `calculate(calculation_type="sla_status", inputs={"ticket_id": ...})`.
@@ -92,7 +98,7 @@ OPENAI_TOOLS = [
         "type": "function",
         "function": {
             "name": "search_documents",
-            "description": "Search company policy documents, signed customer agreements, SOPs, and product guides. Returns authoritative document chunks with source references. Always provide topic ('sla', 'cancellation', 'service_credit', 'known_issue', 'operations') and account_id when known to resolve precedence.",
+            "description": "Search company policy documents, signed customer agreements, SOPs, and product guides. Returns authoritative document chunks with source references. Always provide topic ('sla', 'cancellation', 'service_credit', 'known_issue', 'operations', 'security') and account_id when known to resolve precedence.",
             "parameters": {
                 "type": "object",
                 "properties": {
@@ -102,7 +108,7 @@ OPENAI_TOOLS = [
                     },
                     "topic": {
                         "type": "string",
-                        "enum": ["sla", "cancellation", "service_credit", "known_issue", "operations", "general"],
+                        "enum": ["sla", "cancellation", "service_credit", "known_issue", "operations", "general", "security"],
                         "description": "Optional policy topic to filter chunks and resolve precedence"
                     },
                     "account_id": {

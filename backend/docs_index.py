@@ -47,9 +47,15 @@ DOCUMENT_CHUNKS: List[Dict[str, Any]] = [
         "scope": "general",
         "account_id": None,
         "topic": "sla",
+        "topics": ["sla", "security", "severity_definitions"],
+        "keywords": ["security", "security incident", "credential exposure", "api key", "api key exposure", "p1 critical", "p1", "severity"],
         "topic_rules": [
             {
                 "topic": "severity_definitions",
+                "relationship": "general_rule"
+            },
+            {
+                "topic": "security",
                 "relationship": "general_rule"
             }
         ],
@@ -72,6 +78,8 @@ DOCUMENT_CHUNKS: List[Dict[str, Any]] = [
         "scope": "general",
         "account_id": None,
         "topic": "sla",
+        "topics": ["sla", "security"],
+        "keywords": ["security", "security incident", "credential exposure", "api key", "api key exposure", "p1 response target", "enterprise sla"],
         "topic_rules": [
             {
                 "topic": "sla",
@@ -81,6 +89,10 @@ DOCUMENT_CHUNKS: List[Dict[str, Any]] = [
                     "Growth": {"P1": "2 business hours", "P2": "4 business hours", "P3": "2 business days"},
                     "Standard": {"P1": "4 business hours", "P2": "1 business day", "P3": "2 business days"}
                 }
+            },
+            {
+                "topic": "security",
+                "relationship": "general_rule"
             }
         ],
         "content": (
@@ -101,9 +113,15 @@ DOCUMENT_CHUNKS: List[Dict[str, Any]] = [
         "scope": "general",
         "account_id": None,
         "topic": "sla",
+        "topics": ["sla", "security", "escalation"],
+        "keywords": ["security", "security incident", "credential exposure", "api key", "api key exposure", "p1 escalation", "escalate immediately"],
         "topic_rules": [
             {
                 "topic": "escalation",
+                "relationship": "general_rule"
+            },
+            {
+                "topic": "security",
                 "relationship": "general_rule"
             }
         ],
@@ -578,6 +596,13 @@ def source_resolution(topic: str, account_id: Optional[str] = None) -> Dict[str,
                 "relationship": "general_policy",
                 "explanation": "No custom agreement exists; general Support Policy v3 applies based on account subscription tier."
             }
+        elif topic in ["security", "incident", "credential"]:
+            return {
+                "authoritative_document": "01_Support_Policy_v3_CURRENT.pdf",
+                "source_reference": "01_Support_Policy_v3_CURRENT.pdf, §2, §3 & §4",
+                "relationship": "general_policy",
+                "explanation": "No custom agreement exists; general Support Policy v3 applies (suspected credential exposure is classified as P1 Critical under §2, requiring 30-min 24x7 response for Enterprise under §3 and immediate escalation under §4)."
+            }
         elif topic == "cancellation":
             return {
                 "authoritative_document": "03_Cancellation_and_Service_Credit_SOP_v4.pdf",
@@ -592,6 +617,14 @@ def source_resolution(topic: str, account_id: Optional[str] = None) -> Dict[str,
                 "relationship": "general_sop",
                 "explanation": "No custom agreement exists; general Cancellation & Service Credit SOP v4 applies (lower of INR 500 or 10% of shipment fee if >2 hours late, carrier fault, no customer fault)."
             }
+
+    if topic in ["security", "incident", "credential"]:
+        return {
+            "authoritative_document": "01_Support_Policy_v3_CURRENT.pdf",
+            "source_reference": "01_Support_Policy_v3_CURRENT.pdf, §2, §3 & §4",
+            "relationship": "general_policy",
+            "explanation": "General Support Policy v3 §2, §3, and §4 govern security incidents and suspected credential exposure."
+        }
 
     return {
         "authoritative_document": "01_Support_Policy_v3_CURRENT.pdf / 03_Cancellation_and_Service_Credit_SOP_v4.pdf",
@@ -614,6 +647,23 @@ def search_documents_index(
     q_lower = query.lower().strip() if query else ""
     want_deprecated = include_historical or "v2" in q_lower or "deprecated" in q_lower or "old" in q_lower or "prior" in q_lower
 
+    # Detect security intent in query or topic
+    security_terms = [
+        "api key exposure",
+        "credential exposure",
+        "security incident",
+        "suspected credential exposure",
+        "api key",
+        "credential",
+        "security"
+    ]
+    is_security_query = any(term in q_lower for term in security_terms)
+    is_security_topic = bool(topic and topic.lower() in ("security", "incident", "credential", "credential_exposure"))
+
+    effective_topic = topic.lower() if topic else None
+    if is_security_topic:
+        effective_topic = "security"
+
     results = []
     for chunk in DOCUMENT_CHUNKS:
         # Status filter
@@ -624,12 +674,20 @@ def search_documents_index(
             pass
 
         # Topic filter
-        if topic and topic.lower() != "all":
-            # Check if chunk topic matches or topic is in chunk_id or title
-            if chunk["topic"] != topic.lower() and topic.lower() not in chunk["title"].lower():
-                # Allow general scope if relevant
-                if chunk["topic"] != "general":
-                    continue
+        if effective_topic and effective_topic != "all":
+            chunk_topics = [t.lower() for t in chunk.get("topics", [chunk["topic"]])]
+            matches_topic = (
+                chunk["topic"].lower() == effective_topic or
+                effective_topic in chunk_topics or
+                effective_topic in chunk["title"].lower() or
+                chunk["topic"] == "general"
+            )
+            # Route security-related queries to authoritative Support Policy chunks even if topic was 'known_issue' or 'operations'
+            if not matches_topic and is_security_query and chunk["chunk_id"] in ("DOC-01-SEC-02", "DOC-01-SEC-03", "DOC-01-SEC-04"):
+                matches_topic = True
+
+            if not matches_topic:
+                continue
 
         # Account ID filter
         if account_id:
@@ -641,10 +699,16 @@ def search_documents_index(
         if q_lower:
             words = [w for w in q_lower.split() if len(w) > 2]
             match_score = 0
-            chunk_text = (chunk["title"] + " " + chunk["content"] + " " + chunk["document_id"]).lower()
+            chunk_keywords = " ".join(chunk.get("keywords", []))
+            chunk_text = (chunk["title"] + " " + chunk["content"] + " " + chunk["document_id"] + " " + chunk_keywords).lower()
             for w in words:
                 if w in chunk_text:
                     match_score += 1
+
+            # Ensure security queries retrieve the authoritative security policy chunks §2, §3, §4
+            if is_security_query and chunk["chunk_id"] in ("DOC-01-SEC-02", "DOC-01-SEC-03", "DOC-01-SEC-04"):
+                match_score += 1
+
             if words and match_score == 0:
                 continue
 
@@ -663,8 +727,10 @@ def search_documents_index(
 
     # Add resolution
     resolution = None
-    if topic:
-        resolution = source_resolution(topic, account_id)
+    if effective_topic:
+        resolution = source_resolution(effective_topic, account_id)
+    elif is_security_query:
+        resolution = source_resolution("security", account_id)
 
     return {
         "results": results,
