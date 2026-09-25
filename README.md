@@ -6,7 +6,9 @@
 ![Citation Accuracy](https://img.shields.io/badge/Citation%20Verification-21%2F21%20Verified%20(100%25)-06b6d4?style=for-the-badge)
 ![Stack](https://img.shields.io/badge/Stack-FastAPI%20%7C%20React%20%7C%20OpenAI-6366f1?style=for-the-badge)
 
-**Hosted Application:** https://web-production-e9158.up.railway.app/
+## Live Demo
+
+[**Launch ParcelPilot Operations Intelligence**](https://parcelpilot-ops-intelligence.onrender.com/)
 
 ---
 
