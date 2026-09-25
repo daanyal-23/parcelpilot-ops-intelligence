@@ -1,7 +1,7 @@
 """
-ParcelPilot Support Agent - FastAPI Backend Application.
-Serves chat agent, proactive issue detection, server-side session authentication,
-role-based action execution, evaluation suite, data explorer, and static frontend assets.
+ParcelPilot Operations Intelligence - FastAPI Backend Application.
+Serves operations assistant, proactive issue detection, server-side session authentication,
+role-based action execution, validation suite, data explorer, and static frontend assets.
 """
 
 import os
@@ -34,8 +34,8 @@ from backend.eval_suite import run_evaluation
 from backend.docs_index import DOCUMENT_CHUNKS, source_resolution
 
 app = FastAPI(
-    title="ParcelPilot Internal Support Agent API",
-    description="Grounded AI Support & Operations Agent for ParcelPilot",
+    title="ParcelPilot Operations Intelligence API",
+    description="Grounded Operations Intelligence & Safe Action Execution Platform",
     version="2.0.0"
 )
 
@@ -95,7 +95,7 @@ def startup_event():
 def health_check():
     return {
         "status": "healthy",
-        "service": "ParcelPilot Support Agent",
+        "service": "ParcelPilot Operations Intelligence",
         "dataset_snapshot_time": DATASET_SNAPSHOT_TIME,
         "llm_provider": "OpenAI",
         "model": os.getenv("OPENAI_MODEL", "gpt-5-mini")

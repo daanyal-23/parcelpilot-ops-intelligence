@@ -9,7 +9,9 @@ DATASET_SNAPSHOT_TIME = "2026-08-16T11:00:00+05:30"
 IST = pytz.timezone("Asia/Kolkata")
 DB_PATH = os.path.join(os.path.dirname(__file__), "parcelpilot.db")
 DATA_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "data"))
-EXCEL_PATH = os.path.join(DATA_DIR, "ParcelPilot_Assessment_Data.xlsx")
+EXCEL_PATH = os.path.join(DATA_DIR, "ParcelPilot_Operations_Data.xlsx")
+if not os.path.exists(EXCEL_PATH):
+    EXCEL_PATH = os.path.join(DATA_DIR, "ParcelPilot_Assessment_Data.xlsx")
 
 def get_db_connection():
     conn = sqlite3.connect(DB_PATH)

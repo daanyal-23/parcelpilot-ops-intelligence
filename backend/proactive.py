@@ -1,5 +1,5 @@
 """
-Proactive Issue Detection Engine (Bonus Feature).
+Proactive Issue Detection Engine.
 Deterministic pipeline surfacing P1 tickets, SLA-risk tickets, known-issue correlations,
 and cross-customer pattern detection.
 """

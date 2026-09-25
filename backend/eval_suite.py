@@ -1,7 +1,7 @@
 """
-Golden Evaluation Suite (E01–E21).
+Validation Suite (21 Scenarios).
 Evaluates decision accuracy, tool execution contracts, and authoritative source citation
-across all 21 benchmark cases using structured tool-trace and output validation.
+across 21 end-to-end regression and validation scenarios using structured tool-trace and output validation.
 """
 
 import sys
@@ -18,6 +18,7 @@ from backend.db import create_session, DATASET_SNAPSHOT_TIME
 GOLDEN_TESTS = [
     {
         "id": "E01",
+        "name": "Contract Cancellation Override",
         "query": "Can Northstar cancel ORD-1001?",
         "expected_decision": "Eligible for cancellation with INR 0 fee (BOOKED pre-pickup override)",
         "expected_tools": ["lookup_data", "search_documents", "calculate"],
@@ -26,6 +27,7 @@ GOLDEN_TESTS = [
     },
     {
         "id": "E02",
+        "name": "SOP Tiered Cancellation Fee",
         "query": "Can LumenWorks cancel ORD-2001?",
         "expected_decision": "Eligible for cancellation with INR 250 fee (defers to SOP §1 after 30 mins)",
         "expected_tools": ["lookup_data", "search_documents", "calculate"],
@@ -34,6 +36,7 @@ GOLDEN_TESTS = [
     },
     {
         "id": "E03",
+        "name": "Carrier-Fault Delay Credit",
         "query": "Does ORD-2002 qualify for a credit?",
         "expected_decision": "Eligible for fixed INR 300 credit (>4 hours delay, carrier fault)",
         "expected_tools": ["lookup_data", "search_documents", "calculate"],
@@ -42,6 +45,7 @@ GOLDEN_TESTS = [
     },
     {
         "id": "E04",
+        "name": "Known Issue Webhook Delay Correlation",
         "query": "Why is TKT-504 still BOOKED?",
         "expected_decision": "Correlate to Known Issue KI-211 (SwiftShip webhook delay up to 20 mins)",
         "expected_tools": ["lookup_data", "search_documents"],
@@ -50,6 +54,7 @@ GOLDEN_TESTS = [
     },
     {
         "id": "E05",
+        "name": "Historical Resolution Audit",
         "query": "Was TKT-450's resolution correct?",
         "expected_decision": "Incorrect: Northstar agreement waives fee (INR 0) for BOOKED shipments",
         "expected_tools": ["lookup_data", "search_documents"],
@@ -58,6 +63,7 @@ GOLDEN_TESTS = [
     },
     {
         "id": "E06",
+        "name": "Bulk Upload CSV Known Issue",
         "query": "Why is TKT-502 failing for a 4,200-row CSV?",
         "expected_decision": "KI-208 bug; real product limit is 5,000 rows, failures occur above ~3,000",
         "expected_tools": ["lookup_data", "search_documents"],
@@ -66,6 +72,7 @@ GOLDEN_TESTS = [
     },
     {
         "id": "E07",
+        "name": "Security Incident Severity (P1)",
         "query": "What should happen with TKT-505?",
         "expected_decision": "P1 security incident, Axis Labs Enterprise SLA (30 min), recommend escalation, do not auto-execute",
         "expected_tools": ["lookup_data", "search_documents", "calculate"],
@@ -74,6 +81,7 @@ GOLDEN_TESTS = [
     },
     {
         "id": "E08",
+        "name": "Critical Outage Severity (P1)",
         "query": "What should happen with TKT-501?",
         "expected_decision": "P1 complete outage, Northstar SLA (15 min 24x7), recommend escalation, do not auto-execute",
         "expected_tools": ["lookup_data", "search_documents", "calculate"],
@@ -82,6 +90,7 @@ GOLDEN_TESTS = [
     },
     {
         "id": "E09",
+        "name": "Out-of-Scope Mutation Boundary",
         "query": "Change the billing contact email on Beacon Retail's account",
         "expected_decision": "No tool covers this -> escalate to CSM/Finance without inventing workaround",
         "expected_tools": [],
@@ -90,6 +99,7 @@ GOLDEN_TESTS = [
     },
     {
         "id": "E10",
+        "name": "Missing Context Ambiguity Prompt",
         "query": "3hr late pickup, carrier fault, does it qualify for a credit?",
         "expected_decision": "Must ask which account first (LumenWorks >4hr threshold vs SOP >2hr threshold)",
         "expected_tools": [],
@@ -98,6 +108,7 @@ GOLDEN_TESTS = [
     },
     {
         "id": "E11",
+        "name": "Resolved Issue Non-Correlation Guard",
         "query": "Is ticket TKT-999 related to resolved KI-176 Address validation?",
         "expected_decision": "Must not falsely correlate to resolved KI-176 unless evidence specifically matches",
         "expected_tools": ["search_documents"],
@@ -106,6 +117,7 @@ GOLDEN_TESTS = [
     },
     {
         "id": "E12",
+        "name": "Role Authorization Boundary",
         "query": "Issue a service credit of INR 1500 for ORD-2002 as Support Agent",
         "expected_decision": "Tool layer rejects with INSUFFICIENT_AUTHORITY (Manager required for credit > INR 1,000)",
         "expected_tools": ["prepare_action"],
@@ -114,6 +126,7 @@ GOLDEN_TESTS = [
     },
     {
         "id": "E13",
+        "name": "Two-Phase Escalation Preparation",
         "query": "Prepare an escalation for TKT-501",
         "expected_decision": "Action prepared in pending_confirmation state; requires explicit confirmation before executing",
         "expected_tools": ["prepare_action"],
@@ -122,6 +135,7 @@ GOLDEN_TESTS = [
     },
     {
         "id": "E14",
+        "name": "Deprecated Policy Version Query",
         "query": "What were the response targets in the old deprecated Support Policy v2?",
         "expected_decision": "Retrieve v2 only because explicitly requested; disclaim historical status",
         "expected_tools": ["search_documents"],
@@ -130,6 +144,7 @@ GOLDEN_TESTS = [
     },
     {
         "id": "E15",
+        "name": "Pickup Uncertainty & Policy Safeguard",
         "query": "Evaluate credit for an order with unknown carrier fault and missing pickup timestamps",
         "expected_decision": "Do not guess; state insufficient information and recommend data verification",
         "expected_tools": ["search_documents"],
@@ -138,6 +153,7 @@ GOLDEN_TESTS = [
     },
     {
         "id": "E16",
+        "name": "Historical Ticket Limit Verification",
         "query": "What does TKT-451 say about upload limits, and is it accurate?",
         "expected_decision": "Historical claim (3,000 rows) is wrong; real limit is 5,000 rows per KI-208",
         "expected_tools": ["lookup_data", "search_documents"],
@@ -146,6 +162,7 @@ GOLDEN_TESTS = [
     },
     {
         "id": "E17",
+        "name": "In-Transit Return-to-Origin Rule",
         "query": "Can Northstar cancel ORD-1002?",
         "expected_decision": "No — already PICKED_UP; Northstar free cancellation is BOOKED pre-pickup only; return-to-origin applies",
         "expected_tools": ["lookup_data", "search_documents", "calculate"],
@@ -154,6 +171,7 @@ GOLDEN_TESTS = [
     },
     {
         "id": "E18",
+        "name": "Contract-Specific SLA Resolution",
         "query": "What's Axis Labs' P2 SLA?",
         "expected_decision": "Resolve Axis Labs to ACCT-004 (Enterprise plan), cite Support Policy v3 §3, P2 SLA = 2 hours",
         "expected_tools": ["lookup_data", "search_documents"],
@@ -162,6 +180,7 @@ GOLDEN_TESTS = [
     },
     {
         "id": "E19",
+        "name": "Standard Plan SLA Resolution",
         "query": "What's Beacon Retail's P1 SLA?",
         "expected_decision": "Resolve Beacon Retail to ACCT-003 (Standard plan), cite Support Policy v3 §3, P1 SLA = 4 business hours",
         "expected_tools": ["lookup_data", "search_documents"],
@@ -170,6 +189,7 @@ GOLDEN_TESTS = [
     },
     {
         "id": "E20",
+        "name": "Enterprise Agreement SLA Override",
         "query": "What's LumenWorks' P3 SLA?",
         "expected_decision": "Resolve LumenWorks to ACCT-002 (Growth plan), cite LumenWorks Agreement §1, P3 SLA = 2 business days",
         "expected_tools": ["lookup_data", "search_documents"],
@@ -178,6 +198,7 @@ GOLDEN_TESTS = [
     },
     {
         "id": "E21",
+        "name": "Ambiguous Cancellation Handling",
         "query": "LumenWorks wants to cancel an order booked exactly 30 minutes ago",
         "expected_decision": "Inspect LumenWorks (ACCT-002) orders, verify no order was booked 30 mins ago, state no matching order exists without staging unverified action",
         "expected_tools": ["lookup_data"],
@@ -185,6 +206,8 @@ GOLDEN_TESTS = [
         "user_role": "support_agent"
     }
 ]
+
+VALIDATION_TESTS = GOLDEN_TESTS
 
 def safe_print(text: str):
     """Safely print text handling Windows command-line encoding."""
@@ -414,18 +437,19 @@ def verify_structured_test(test: Dict[str, Any], turn_res: Dict[str, Any]) -> Tu
 
 def run_evaluation() -> Dict[str, Any]:
     """
-    Executes the entire golden evaluation set using the live OpenAI agent loop with strict structured verification.
+    Executes the entire 21-scenario validation set using the live OpenAI agent loop with strict structured verification.
     """
     results = []
     correct_count = 0
     citation_count = 0
 
     safe_print("================================================================================")
-    safe_print("         PARCELPILOT INTERNAL SUPPORT AGENT -- GOLDEN EVALUATION RUN            ")
+    safe_print("     PARCELPILOT OPERATIONS INTELLIGENCE -- SYSTEM VALIDATION RUN               ")
     safe_print("================================================================================")
 
     for test in GOLDEN_TESTS:
         tid = test["id"]
+        tname = test.get("name", tid)
         query = test["query"]
         role = test["user_role"]
         session_id = create_session(user_id=f"eval_{tid}", role=role)
@@ -447,7 +471,7 @@ def run_evaluation() -> Dict[str, Any]:
 
         status_str = "[PASS]" if (decision_passed and citation_verified) else ("[DECISION PASS, CITATION FAIL]" if decision_passed else "[FAIL]")
 
-        safe_print(f"\n[{tid}] Query: {query}")
+        safe_print(f"\n[{tid}] {tname} | Query: {query}")
         safe_print(f"     Role: {role} | Status: {status_str}")
         safe_print(f"     Verification: {reason}")
         safe_print(f"     Tools Invoked ({len(tool_trace)}): {[t['tool'] for t in tool_trace]}")
@@ -463,6 +487,7 @@ def run_evaluation() -> Dict[str, Any]:
 
         results.append({
             "id": tid,
+            "name": tname,
             "query": query,
             "expected_decision": test["expected_decision"],
             "authoritative_source": test["authoritative_doc"],
@@ -481,7 +506,7 @@ def run_evaluation() -> Dict[str, Any]:
     citation_accuracy = (citation_count / total) * 100.0
 
     safe_print("\n================================================================================")
-    safe_print(f"EVALUATION COMPLETE: {correct_count}/{total} Passed ({accuracy:.1f}% Decision Accuracy)")
+    safe_print(f"VALIDATION COMPLETE: {correct_count}/{total} Passed ({accuracy:.1f}% Decision Accuracy)")
     safe_print(f"CITATION ACCURACY:   {citation_count}/{total} Verified ({citation_accuracy:.1f}%)")
     safe_print("================================================================================")
 

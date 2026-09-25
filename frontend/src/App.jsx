@@ -288,10 +288,10 @@ export default function App() {
                   ParcelPilot
                 </span>
                 <span className="text-xs px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-400 font-semibold border border-emerald-500/20">
-                  Operations AI
+                  Operations Intelligence
                 </span>
               </div>
-              <p className="text-xs text-slate-400 hidden sm:block">Grounded Support & Resolution Suite</p>
+              <p className="text-xs text-slate-400 hidden sm:block">AI-assisted support, incident analysis & safe resolution</p>
             </div>
           </div>
 
@@ -355,9 +355,6 @@ export default function App() {
           >
             <TrendingUp className="w-4 h-4" />
             <span>Proactive Issue Detection</span>
-            <span className="bg-emerald-500/20 text-emerald-300 text-[10px] px-1.5 py-0.5 rounded-full font-bold">
-              Bonus Track
-            </span>
           </button>
           <button
             onClick={() => setActiveTab('eval')}
@@ -368,9 +365,9 @@ export default function App() {
             }`}
           >
             <CheckCircle2 className="w-4 h-4" />
-            <span>Golden Evaluation (E01–E21)</span>
+            <span>System Validation</span>
             <span className="bg-slate-800 text-slate-300 text-[10px] px-1.5 py-0.5 rounded-full font-bold">
-              {evalData?.total_tests ? `${evalData.total_tests} Tests` : '21 Tests'}
+              {evalData?.total_tests ? `${evalData.total_tests} Scenarios` : '21 Scenarios'}
             </span>
           </button>
           <button
@@ -417,23 +414,23 @@ export default function App() {
                 <span>Quick Inquiries:</span>
               </span>
               {[
-                { label: 'E01: Northstar Cancel ORD-1001', query: 'Can Northstar cancel ORD-1001?' },
-                { label: 'E02: LumenWorks Cancel ORD-2001', query: 'Can LumenWorks cancel ORD-2001?' },
-                { label: 'E03: LumenWorks Credit ORD-2002', query: 'Does ORD-2002 qualify for a credit?' },
-                { label: 'E04: TKT-504 SwiftShip Status', query: 'Why is TKT-504 still BOOKED?' },
-                { label: 'E07: TKT-505 Security Leak', query: 'What should happen with TKT-505?' },
-                { label: 'E08: TKT-501 Outage', query: 'What should happen with TKT-501?' },
-                { label: 'E17: Northstar ORD-1002 (Picked Up)', query: 'Can Northstar cancel ORD-1002?' },
-                { label: 'E18: Axis Labs P2 SLA', query: "What's Axis Labs' P2 SLA?" },
-                { label: 'E19: Beacon Retail P1 SLA', query: "What's Beacon Retail's P1 SLA?" },
-                { label: 'E20: LumenWorks P3 SLA', query: "What's LumenWorks' P3 SLA?" },
-                { label: 'E21: LumenWorks Ambiguous Cancel', query: 'LumenWorks wants to cancel an order booked exactly 30 minutes ago' },
-                { label: 'E12: Unauthorized Credit', query: 'Issue a service credit of INR 1500 for ORD-2002 as Support Agent' }
+                { label: 'Contract Cancellation Override', query: 'Can Northstar cancel ORD-1001?' },
+                { label: 'SOP Cancellation Fee', query: 'Can LumenWorks cancel ORD-2001?' },
+                { label: 'Carrier Delay Credit', query: 'Does ORD-2002 qualify for a credit?' },
+                { label: 'SwiftShip Webhook Delay', query: 'Why is TKT-504 still BOOKED?' },
+                { label: 'Security Incident (P1)', query: 'What should happen with TKT-505?' },
+                { label: 'Critical Outage (P1)', query: 'What should happen with TKT-501?' },
+                { label: 'Picked-Up Order Rule', query: 'Can Northstar cancel ORD-1002?' },
+                { label: 'Contract-Specific SLA', query: "What's Axis Labs' P2 SLA?" },
+                { label: 'Standard Plan SLA', query: "What's Beacon Retail's P1 SLA?" },
+                { label: 'Enterprise SLA Override', query: "What's LumenWorks' P3 SLA?" },
+                { label: 'Ambiguous Cancellation Handling', query: 'LumenWorks wants to cancel an order booked exactly 30 minutes ago' },
+                { label: 'Authorization Boundary', query: 'Issue a service credit of INR 1500 for ORD-2002 as Support Agent' }
               ].map((chip, idx) => (
                 <button
                   key={idx}
                   onClick={() => handleSendMessage(chip.query)}
-                  className="px-2.5 py-1 rounded-lg bg-slate-800/90 hover:bg-slate-700 border border-slate-700 hover:border-emerald-500/50 text-slate-300 hover:text-emerald-300 transition-all shrink-0 font-mono text-[11px]"
+                  className="px-2.5 py-1 rounded-lg bg-slate-800/90 hover:bg-slate-700 border border-slate-700 hover:border-emerald-500/50 text-slate-300 hover:text-emerald-300 transition-all shrink-0 font-medium text-[11px]"
                 >
                   {chip.label}
                 </button>
@@ -854,17 +851,17 @@ export default function App() {
           </div>
         )}
 
-        {/* TAB 3: GOLDEN EVALUATION SUITE (E01–E21) */}
+        {/* TAB 3: SYSTEM VALIDATION SUITE */}
         {activeTab === 'eval' && (
           <div className="space-y-6">
             <div className="flex items-center justify-between">
               <div>
                 <h2 className="text-xl font-bold text-slate-100 flex items-center space-x-2">
                   <CheckCircle2 className="w-5 h-5 text-emerald-400" />
-                  <span>Golden Evaluation Suite (E01–E{evalData?.total_tests || 21} Benchmark)</span>
+                  <span>Validation Suite ({evalData?.total_tests || 21} Scenarios)</span>
                 </h2>
                 <p className="text-xs text-slate-400">
-                  Measures <strong>Decision Accuracy</strong> & <strong>Authoritative Source Citations</strong> across all locked test scenarios
+                  Measures <strong>Decision Accuracy</strong> & <strong>Authoritative Source Citations</strong> across end-to-end operational scenarios
                 </p>
               </div>
               <button
@@ -873,14 +870,14 @@ export default function App() {
                 className="px-4 py-2 bg-emerald-600 hover:bg-emerald-500 disabled:bg-slate-800 text-white rounded-xl text-xs font-semibold flex items-center space-x-1.5 shadow-lg shadow-emerald-950/40 transition-all"
               >
                 <RefreshCw className={`w-4 h-4 ${loadingEval ? 'animate-spin' : ''}`} />
-                <span>Re-run Evaluation</span>
+                <span>Run Validation</span>
               </button>
             </div>
 
             {loadingEval || !evalData ? (
               <div className="p-12 text-center text-slate-400 flex flex-col items-center justify-center space-y-3">
                 <RefreshCw className="w-8 h-8 text-emerald-400 animate-spin" />
-                <p className="text-sm">Running all {evalData?.total_tests || 21} Golden Test Cases...</p>
+                <p className="text-sm">Running all {evalData?.total_tests || 21} Validation Scenarios...</p>
               </div>
             ) : (
               <>
@@ -892,7 +889,7 @@ export default function App() {
                       {evalData.decision_accuracy_pct}%
                     </div>
                     <div className="text-xs text-slate-400 mt-1">
-                      {evalData.passed_tests} of {evalData.total_tests} tests verified
+                      {evalData.passed_tests} of {evalData.total_tests} scenarios verified
                     </div>
                   </div>
                   <div className="glass-panel p-5 rounded-2xl border-l-4 border-l-cyan-500">
@@ -905,7 +902,7 @@ export default function App() {
                     </div>
                   </div>
                   <div className="glass-panel p-5 rounded-2xl border-l-4 border-l-blue-500">
-                    <div className="text-xs font-semibold text-blue-400 uppercase">Evaluation Coverage</div>
+                    <div className="text-xs font-semibold text-blue-400 uppercase">Validation Coverage</div>
                     <div className="text-3xl font-extrabold text-white mt-1 font-mono">
                       {evalData.passed_tests} / {evalData.total_tests}
                     </div>
@@ -918,16 +915,21 @@ export default function App() {
                 {/* Test Results Table */}
                 <div className="glass-panel rounded-2xl overflow-hidden border border-slate-800">
                   <div className="p-4 bg-slate-900 border-b border-slate-800 font-bold text-sm text-slate-200">
-                    Detailed Test Results (E01–E{evalData.total_tests})
+                    Detailed Scenario Results ({evalData.total_tests} Scenarios)
                   </div>
                   <div className="divide-y divide-slate-800/60">
                     {evalData.test_results.map((test, idx) => (
                       <div key={idx} className="p-4 hover:bg-slate-800/30 transition-colors space-y-2">
                         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
-                          <div className="flex items-center space-x-2.5">
+                          <div className="flex flex-wrap items-center gap-2">
                             <span className="px-2 py-0.5 bg-slate-800 text-emerald-300 rounded font-mono font-bold text-xs border border-slate-700">
                               {test.id}
                             </span>
+                            {test.name && (
+                              <span className="text-xs font-medium text-cyan-300 bg-cyan-950/50 px-2 py-0.5 rounded border border-cyan-800/40">
+                                {test.name}
+                              </span>
+                            )}
                             <span className="font-semibold text-sm text-slate-100">{test.query}</span>
                           </div>
                           <div className="flex items-center space-x-2 shrink-0">
