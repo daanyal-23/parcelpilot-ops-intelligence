@@ -190,10 +190,11 @@ This executes all 21 operational scenarios against the live agent loop, verifyin
 
 ## Deployment
 
-The application is deployed on Railway as a unified full-stack service:
-- **Web Process (`Procfile`)**: Starts Uvicorn serving the FastAPI backend (`uvicorn backend.main:app --host 0.0.0.0 --port $PORT`).
-- **Build Configuration (`railway.json` / `nixpacks.toml`)**: Builds Python and Node environments and runs the application.
-- **Static Hosting**: FastAPI statically serves the compiled React assets from `frontend/dist`.
+The application is deployed on Render as a unified full-stack service:
+- **Unified Full-Stack Service**: FastAPI and Uvicorn serve the backend API while directly hosting the application.
+- **Static Frontend Serving**: FastAPI serves the compiled React frontend from `frontend/dist`.
+- **Port Binding**: The Render service dynamically binds to the port assigned by the `PORT` environment variable (`uvicorn backend.main:app --host 0.0.0.0 --port $PORT`).
+- **Ephemeral Filesystem Handling**: SQLite is initialized automatically on startup using `ensure_db_initialized()`, safely creating tables and seeding baseline data from `data/ParcelPilot_Operations_Data.xlsx` whenever started on a fresh or ephemeral filesystem.
 
 ---
 
