@@ -84,9 +84,9 @@ This project investigates an alternative pattern: **keeping business truth, math
 
 ## Architecture
 
-For a comprehensive breakdown of the system architecture, component interactions, and data models, see [ARCHITECTURE.md](file:///c:/Users/Mr.%20Daanyal/Desktop/Internsip%20Assignments/CalQuity/ARCHITECTURE.md).
+For a comprehensive breakdown of the system architecture, component interactions, and data models, see [ARCHITECTURE.md](ARCHITECTURE.md).
 
-For an overview of product workflows and engineering trade-offs, see [PRODUCT_OVERVIEW.md](file:///c:/Users/Mr.%20Daanyal/Desktop/Internsip%20Assignments/CalQuity/PRODUCT_OVERVIEW.md).
+For an overview of product workflows and engineering trade-offs, see [PRODUCT_OVERVIEW.md](PRODUCT_OVERVIEW.md).
 
 ```
 User Request
@@ -149,8 +149,8 @@ This executes all 21 operational scenarios against the live agent loop, verifyin
 
 1. **Clone the repository**:
    ```bash
-   git clone https://github.com/daanyal-23/parcelpilot-ops-intelligence.git
-   cd parcelpilot-ops-intelligence
+   git clone https://github.com/daanyal-23/CalQuity.git
+   cd CalQuity
    ```
 
 2. **Configure Environment Variables**:
@@ -198,7 +198,7 @@ The application is deployed on Railway as a unified full-stack service:
 ## Repository Structure
 
 ```
-parcelpilot-ops-intelligence/
+CalQuity/
 ├── backend/
 │   ├── db.py               # SQLite schema, session management, Excel data seeding
 │   ├── docs_index.py       # Metadata indexing & policy precedence resolution
