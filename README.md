@@ -149,8 +149,8 @@ This executes all 21 operational scenarios against the live agent loop, verifyin
 
 1. **Clone the repository**:
    ```bash
-   git clone https://github.com/daanyal-23/CalQuity.git
-   cd CalQuity
+   git clone https://github.com/daanyal-23/parcelpilot-ops-intelligence.git
+   cd parcelpilot-ops-intelligence
    ```
 
 2. **Configure Environment Variables**:
@@ -198,7 +198,7 @@ The application is deployed on Railway as a unified full-stack service:
 ## Repository Structure
 
 ```
-CalQuity/
+parcelpilot-ops-intelligence/
 ├── backend/
 │   ├── db.py               # SQLite schema, session management, Excel data seeding
 │   ├── docs_index.py       # Metadata indexing & policy precedence resolution
